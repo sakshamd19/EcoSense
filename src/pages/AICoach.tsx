@@ -64,9 +64,10 @@ export default function AICoach() {
 
       const response = await generateWeeklyCoachLetter(summary);
       setLetter(response);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || "Couldn't reach your coach. Make sure your API key is set in Profile.");
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || 'Failed to generate coach letter. Please check your Gemini API Key in the Profile tab.');
     } finally {
       setIsGenerating(false);
     }
@@ -74,9 +75,11 @@ export default function AICoach() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-6 animate-in fade-in">
-      <div className="text-center md:text-left">
-        <h2 className="text-2xl font-bold text-gray-900">Your Weekly Carbon Coach</h2>
-        <p className="text-gray-500 mt-1">Get personalised, data-driven feedback on your lifestyle choices.</p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Weekly AI Coach</h1>
+          <p className="text-gray-500 mt-1">Review your last 7 days and get personalized advice.</p>
+        </div>
       </div>
 
       {!hasAnyLogs ? (

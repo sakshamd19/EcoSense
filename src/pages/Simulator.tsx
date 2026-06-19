@@ -37,18 +37,21 @@ export default function Simulator() {
   // Simulation logic
   const simulatedAnnualKg = useMemo(() => {
     if (!profile) return 0;
+    const dist = profile.commuteDistance || 0;
     
-    // Transport
-    let transportFactor = 0;
-    if (profile.commuteMode === 'Car') transportFactor = 0.171;
-    else if (profile.commuteMode === '2-Wheeler') transportFactor = 0.110;
-    else if (profile.commuteMode === 'Auto') transportFactor = 0.070;
-    else transportFactor = 0.171; // Default to car if they use transit usually but simulate driving
+    // Determine transport factor based on mode
+    const getFactor = (mode: string) => {
+      switch(mode) {
+        case 'Car': return 0.171;
+        case '2-Wheeler': return 0.110;
+        case 'Auto': return 0.070;
+        default: return 0.171; // Default to car
+      }
+    };
     
     const transitFactor = 0.032; // Metro average
-    const dist = profile.commuteDistance || 15; // default 15km one way if WFH
     
-    const simTransport = ((carDays * dist * 2 * transportFactor) + (transitDays * dist * 2 * transitFactor)) * 52;
+    const simTransport = ((carDays * dist * 2 * getFactor(profile.commuteMode)) + (transitDays * dist * 2 * transitFactor)) * 52;
 
     // Food
     const nonVegMeals = 21 - vegMeals;
@@ -89,9 +92,11 @@ export default function Simulator() {
 
   return (
     <div className="space-y-6 pb-6 animate-in fade-in">
-      <div className="text-center md:text-left">
-        <h2 className="text-2xl font-bold text-gray-900">How much could you save?</h2>
-        <p className="text-gray-500 mt-1">Drag the sliders to model lifestyle changes. Projections use India-specific emission factors.</p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Lifestyle Simulator</h1>
+          <p className="text-gray-500 mt-1">Adjust your habits to see the potential carbon impact.</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -143,7 +148,7 @@ export default function Simulator() {
                 <BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 30, left: 0, bottom: 0 }}>
                   <XAxis type="number" hide />
                   <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#374151', fontSize: 14 }} width={80} />
-                  <Tooltip cursor={{fill: 'transparent'}} formatter={(val: any) => [`${val} kg`, 'Annual CO2']} />
+                  <Tooltip cursor={{fill: 'transparent'}} formatter={(val: unknown) => [`${val} kg`, 'Annual CO2']} />
                   <Bar dataKey="kg" radius={[0, 8, 8, 0]} barSize={32}>
                     {chartData.map((_entry, index) => (
                       <Cell key={`cell-${index}`} fill={index === 0 ? '#9CA3AF' : (savings > 0 ? '#10B981' : '#EF4444')} />
@@ -196,7 +201,15 @@ export default function Simulator() {
   );
 }
 
-function SliderControl({ label, value, setValue, max, suffix = '' }: any) {
+interface SliderControlProps {
+  label: string;
+  value: number;
+  setValue: (val: number) => void;
+  max: number;
+  suffix?: string;
+}
+
+function SliderControl({ label, value, setValue, max, suffix = '' }: SliderControlProps) {
   return (
     <div>
       <div className="flex justify-between items-end mb-2">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 // unused
 import { Save, AlertTriangle, Key } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -8,17 +8,11 @@ import type { UserProfile, CommuteMode, DietType } from '../types';
 export default function Profile() {
   const [profile, setProfile] = useLocalStorage<UserProfile | null>('ecosense_profile', null);
   
-  const [formData, setFormData] = useState<Partial<UserProfile>>({});
+  const [formData, setFormData] = useState<Partial<UserProfile>>(profile || {});
   const [isSaved, setIsSaved] = useState(false);
   const [showConfirmReset, setShowConfirmReset] = useState(false);
 
-  useEffect(() => {
-    if (profile) {
-      setFormData(profile);
-    }
-  }, [profile]);
-
-  const handleChange = (field: keyof UserProfile, value: any) => {
+  const handleChange = (field: keyof UserProfile, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setIsSaved(false);
   };
@@ -73,7 +67,7 @@ export default function Profile() {
     <div className="max-w-3xl mx-auto space-y-6 pb-6 animate-in fade-in">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Profile & Settings</h2>
+          <h1 className="text-2xl font-bold text-gray-900">Profile & Settings</h1>
           <p className="text-gray-500 mt-1">Manage your carbon baseline and app preferences.</p>
         </div>
         <div className="text-sm text-gray-400">

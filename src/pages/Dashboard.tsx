@@ -22,7 +22,7 @@ const COLORS = {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [] = useLocalStorage<UserProfile | null>('ecosense_profile', null);
+  useLocalStorage<UserProfile | null>('ecosense_profile', null);
   const [logs] = useLocalStorage<DailyLogs>('ecosense_logs', {});
 
   const todayStr = format(new Date(), 'yyyy-MM-dd');
@@ -101,7 +101,7 @@ export default function Dashboard() {
   const todayColor = todayUsedPercent < 60 ? 'bg-emerald-500' : todayUsedPercent < 85 ? 'bg-amber-500' : 'bg-red-500';
 
   const donutData = Object.entries(monthlyData.categoryTotals)
-    .filter(([_, v]) => v > 0)
+    .filter(([, v]) => v > 0)
     .map(([name, value]) => ({ name, value: Number(value.toFixed(2)) }));
 
   const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
@@ -112,7 +112,7 @@ export default function Dashboard() {
       
       {/* Carbon Budget Gauge */}
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Monthly Carbon Budget</h2>
+        <h1 className="text-xl font-bold text-gray-900 mb-2">Monthly Carbon Budget</h1>
         <div className="h-48 w-full max-w-[300px]">
           <ResponsiveContainer width="100%" height="100%" minHeight={1}>
             <RadialBarChart 
@@ -199,7 +199,7 @@ export default function Dashboard() {
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} />
                 <Tooltip 
                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  formatter={(value: any) => [`${value} kg`, 'Emissions']}
+                  formatter={(value: unknown) => [`${value} kg`, 'Emissions']}
                 />
                 <ReferenceLine y={DAILY_BUDGET_KG} stroke="#9CA3AF" strokeDasharray="3 3" />
                 <Line 
@@ -236,7 +236,7 @@ export default function Dashboard() {
                         <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS] || COLORS.Other} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: any) => `${value} kg`} />
+                    <Tooltip formatter={(value: unknown) => `${value} kg`} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>

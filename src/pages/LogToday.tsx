@@ -30,17 +30,18 @@ export default function LogToday() {
       const parsed = await parseActivities(description);
       if (!Array.isArray(parsed)) throw new Error('Invalid response format');
       
-      const newActivities = parsed.map((item: any) => ({
-        id: crypto.randomUUID(),
-        activity: item.activity || 'Unknown Activity',
-        category: item.category as Category,
+      const newActivities = parsed.map((item: Record<string, string | number>) => ({
+        id: Math.random().toString(36).substr(2, 9),
+        activity: String(item.activity),
+        category: String(item.category) as Category,
         kg: Number(item.kg) || 0
       }));
 
       setActivities(prev => [...prev, ...newActivities]);
       setDescription('');
-    } catch (err: any) {
-      setError(err.message || "Couldn't parse that — try describing your activities more specifically, or add them manually below.");
+    } catch (err) {
+      console.error(err);
+      setError('Failed to parse activities. Please try again or check your API key.');
     } finally {
       setIsParsing(false);
     }
@@ -91,7 +92,7 @@ export default function LogToday() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-6 animate-in fade-in">
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Log Today's Activities</h2>
+        <h1 className="text-xl font-bold text-gray-900 mb-4">Log Today's Activities</h1>
         
         <div className="space-y-4">
           <textarea
@@ -149,6 +150,7 @@ export default function LogToday() {
                   </div>
                   <button 
                     onClick={() => handleDelete(activity.id)}
+                    aria-label="Delete activity"
                     className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
